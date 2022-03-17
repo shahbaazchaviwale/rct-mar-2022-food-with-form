@@ -31,31 +31,42 @@ import MealItem from "./MealItem/MealItem";
 // ];
 
 const AvailableMeals = () => {
-const [meals, setMeals] = useState([]);
+  const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-// useEffects will when component render after bcz its does not 
+  // useEffects will when component render after bcz its does not
   useEffect(() => {
     const fetchMeal = async () => {
-      const response = await fetch('https://rct-mar-2022-food-form-default-rtdb.firebaseio.com/meals.json');
+      const response = await fetch(
+        "https://rct-mar-2022-food-form-default-rtdb.firebaseio.com/meals.json"
+      );
       const responseData = await response.json();
 
-      console.log('responseData >>', responseData)
+      console.log("responseData >>", responseData);
       const loadedMeals = [];
       // this will object array
-      for(const key in responseData){
+      for (const key in responseData) {
         loadedMeals.push({
           id: key,
-          name: responseData[key]['name'],
-          description: responseData[key]['description'],
-          price: responseData[key]['price']
-        })
+          name: responseData[key]["name"],
+          description: responseData[key]["description"],
+          price: responseData[key]["price"],
+        });
       }
-      console.log('push>>', loadedMeals)
+      console.log("push>>", loadedMeals);
       setMeals(loadedMeals);
-    }
+      setIsLoading(false);
+    };
     fetchMeal();
   }, []);
 
+  if (isLoading) {
+    return (
+      <section className={classes.MealsLoading}>
+        <h2>Loading...</h2>
+      </section>
+    );
+  }
   const mealsList = meals.map((meal) => (
     <MealItem
       id={meal.id}
