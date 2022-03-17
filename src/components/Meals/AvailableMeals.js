@@ -33,14 +33,21 @@ import MealItem from "./MealItem/MealItem";
 const AvailableMeals = () => {
   const [meals, setMeals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState();
 
   // useEffects will when component render after bcz its does not
   useEffect(() => {
-    const fetchMeal = async () => {
+    const fetchMeals = async () => {
       const response = await fetch(
         "https://rct-mar-2022-food-form-default-rtdb.firebaseio.com/meals.json"
       );
+
+      if (!response.ok) {
+        throw new Error("Something went wrong!!");
+      }
       const responseData = await response.json();
+
+      
 
       console.log("responseData >>", responseData);
       const loadedMeals = [];
@@ -57,7 +64,11 @@ const AvailableMeals = () => {
       setMeals(loadedMeals);
       setIsLoading(false);
     };
-    fetchMeal();
+
+    fetchMeals().catch((error) => {
+      setIsLoading(false);
+      setHttpError(error.message);
+    });
   }, []);
 
   if (isLoading) {
@@ -67,6 +78,15 @@ const AvailableMeals = () => {
       </section>
     );
   }
+
+  if (httpError) {
+    return (
+      <section className={classes.MealsLoading}>
+        <h2>{httpError}</h2>
+      </section>
+    );
+  }
+
   const mealsList = meals.map((meal) => (
     <MealItem
       id={meal.id}
@@ -80,7 +100,7 @@ const AvailableMeals = () => {
   return (
     <section className={classes.meals}>
       <Card>
-        <ul>{mealsList}</ul>
+        <ul>{meals.length > 0 ? mealsList : 'No data found'}</ul>
       </Card>
     </section>
   );
